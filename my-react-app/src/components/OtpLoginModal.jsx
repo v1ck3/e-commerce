@@ -1,29 +1,79 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; // 🔥 Import this
 
-const OtpLoginModal = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState("phone"); // phone | otp
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
+const AuthModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
 
-  const handleSendOtp = () => {
-    if (phone.length !== 10) return alert("Enter valid phone number");
-    // 🔗 API call here (send OTP)
-    setStep("otp");
-  };
+  const [mode, setMode] = useState("login"); // login | register
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const apiBase = `${import.meta.env.VITE_API_BASE_URL}`;
 
-  const handleVerifyOtp = () => {
-    if (otp.length !== 6) return alert("Enter valid OTP");
-    // 🔗 API call here (verify OTP)
-    alert("Logged in successfully");
-    onClose();
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.id]: e.target.value });
+
+  const handleSubmit = async () => {
+    try {
+      if (mode === "register") {
+        if (!form.name || !form.email || form.password.length < 4) {
+          toast.error("Fill all fields correctly (password min 4)");
+          return;
+        }
+
+        const res = await fetch(`${apiBase}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          toast.error(data.message);
+          return;
+        }
+
+        toast.success("Registered successfully! Now login ✅");
+        setMode("login");
+        setForm({ name: "", email: "", password: "" });
+      } else {
+        if (!form.email || form.password.length < 4) {
+          toast.error("Enter valid credentials");
+          return;
+        }
+
+        const res = await fetch(`${apiBase}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: form.email, password: form.password }),
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          toast.error(data.message);
+          return;
+        }
+
+        toast.success("Logged in successfully 🎉");
+
+        localStorage.setItem("token", data.jwttoken);
+        localStorage.setItem("name", data.name);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("_id", data._id);
+        window.dispatchEvent(new Event("auth-change")); // 🔥 this forces navbar update
+
+        onClose();
+        navigate("/");
+      }
+    } catch (err) {
+      toast.error("Server error occurred");
+    }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🔒 Background Overlay */}
           <motion.div
             className="fixed inset-0 bg-black/50 backdrop-blur-md z-40"
             initial={{ opacity: 0 }}
@@ -32,7 +82,6 @@ const OtpLoginModal = ({ isOpen, onClose }) => {
             onClick={onClose}
           />
 
-          {/* 📦 Modal */}
           <motion.div
             className="fixed z-50 top-1/2 left-1/2 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl p-8 shadow-2xl"
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
@@ -40,7 +89,6 @@ const OtpLoginModal = ({ isOpen, onClose }) => {
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {/* ❌ Close */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-gray-400 hover:text-black"
@@ -48,58 +96,54 @@ const OtpLoginModal = ({ isOpen, onClose }) => {
               ✕
             </button>
 
-            {/* 🧠 Content */}
-            <h2 className="text-2xl font-black tracking-tight mb-2">
-              {step === "phone" ? "Login with OTP" : "Verify OTP"}
+            <h2 className="text-2xl font-black mb-6">
+              {mode === "login" ? "Login" : "Register"}
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {step === "phone"
-                ? "Enter your mobile number to receive OTP"
-                : `OTP sent to +91 ${phone}`}
-            </p>
 
-            {step === "phone" ? (
-              <>
-                <input
-                  type="tel"
-                  placeholder="Enter mobile number"
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                <button
-                  onClick={handleSendOtp}
-                  className="mt-6 w-full bg-black text-white py-3 rounded-xl font-bold tracking-wide hover:opacity-90"
-                >
-                  Send OTP
-                </button>
-              </>
-            ) : (
-              <>
-                <input
-                  type="number"
-                  placeholder="Enter 6 digit OTP"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                <button
-                  onClick={handleVerifyOtp}
-                  className="mt-6 w-full bg-black text-white py-3 rounded-xl font-bold tracking-wide hover:opacity-90"
-                >
-                  Verify & Login
-                </button>
-
-                <button
-                  onClick={() => setStep("phone")}
-                  className="mt-4 w-full text-xs text-gray-500 hover:underline"
-                >
-                  Change number
-                </button>
-              </>
+            {mode === "register" && (
+              <input
+                type="text"
+                id="name"
+                placeholder="Enter name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-4"
+              />
             )}
+
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter email"
+              value={form.email}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-4"
+            />
+
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter password"
+              value={form.password}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-6"
+            />
+
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-black text-white py-3 rounded-xl font-bold hover:opacity-90"
+            >
+              {mode === "login" ? "Login" : "Register"}
+            </button>
+
+            <button
+              onClick={() => setMode(mode === "login" ? "register" : "login")}
+              className="mt-4 w-full text-xs text-gray-500 hover:underline"
+            >
+              {mode === "login"
+                ? "Don't have an account? Register"
+                : "Already have an account? Login"}
+            </button>
           </motion.div>
         </>
       )}
@@ -107,4 +151,4 @@ const OtpLoginModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default OtpLoginModal;
+export default AuthModal;

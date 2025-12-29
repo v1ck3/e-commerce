@@ -35,7 +35,6 @@ const Shop = ({ limit = null }) => {
   return (
     <section className="py-24 px-6 sm:px-10">
       <div className="max-w-7xl mx-auto">
-
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 gap-4">
           <div className="text-center md:text-left">
@@ -48,7 +47,10 @@ const Shop = ({ limit = null }) => {
           </div>
 
           {limit && (
-            <Link to="/shop" className="px-6 py-3 border border-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">
+            <Link
+              to="/shop"
+              className="px-6 py-3 border border-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300"
+            >
               View All Collection
             </Link>
           )}
@@ -57,30 +59,29 @@ const Shop = ({ limit = null }) => {
         {/* Products */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {displayProducts.map((item) => (
-            <div key={item._id} className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] bg-white">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
-              />
+            <Link to={`/product/${item._id}`} key={item._id}>
+              <div className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] bg-white cursor-pointer">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
 
-              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[90%] bg-white/80 backdrop-blur-xl rounded-[1.5rem] p-5 flex justify-between items-center shadow-xl">
-                <div>
-                  <h3 className="text-[8px] font-black uppercase truncate">
-                    {item.title}
-                  </h3>
-                  <p className="text-[11px] text-gray-500">
-                    ₹{item.price}
-                  </p>
-                </div>
-                <div className="h-9 w-9 bg-black text-white rounded-xl flex items-center justify-center">
-                  →
+                <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[90%] bg-white/80 backdrop-blur-xl rounded-[1.5rem] p-5 flex justify-between items-center shadow-xl">
+                  <div>
+                    <h3 className="text-[8px] font-black uppercase truncate">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] text-gray-500">₹{item.price}</p>
+                  </div>
+                  <div className="h-9 w-9 bg-black text-white rounded-xl flex items-center justify-center">
+                    →
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
-
       </div>
     </section>
   );

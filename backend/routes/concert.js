@@ -8,14 +8,16 @@ import userAuth from "../controllers/useregister.js"
 import validations  from "../middlewares/AuthValidation.js"
 import cartController from "../controllers/cartController.js"
 import auth from "../middlewares/auth.js"
-import handleAddress from "../controllers/handleAddress.js"
+import handleAddress from "../controllers/handleaddress.js";
+import getOrderDetails from "../controllers/orders.js"
 
 
 
 const router  = express.Router()
 
 router.route("/").get(concertInfo)
-router.route("/merch").get(merchItem)
+router.route("/merch").get(merchItem.merchItem)
+router.route("/merch/:id").get(merchItem.getMerchById)
 router.route("/songs").get(songInfo)
 router.route("/booking").post(bookingInfo)
 router.route("/register").post(validations.registerValidation, userAuth.userregister)
@@ -25,6 +27,11 @@ router.route("/cart/:userId").get(cartController.handleGetCart);
 router.route("/cart/update").put(cartController.handleUpdate); 
 router.route("/cart/remove").delete(cartController.handleRemove);  
 router.route("/cart/delete/:userId").delete(cartController.handledeleteCart); 
-router.route("/address").post(handleAddress);
+router.route("/address").post(handleAddress.handleAddress);
+router.route("/address/:userId").get(handleAddress.handleGetAddress);
+router.route("/address/:userId").put(handleAddress.handleupdate);
+router.route("/getOrderDetails/:userId").get(auth, getOrderDetails);
+
+
 
 export default router
