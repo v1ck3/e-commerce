@@ -5,12 +5,46 @@ import { FaUserCircle } from "react-icons/fa";
 import toast from "react-hot-toast";
 import OtpLoginModal from "./OtpLoginModal";
 
-
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+
+
+  useEffect(() => {
+  const fetchCartCount = async () => {
+    const userId = localStorage.getItem("_id");
+    if (!userId) return setCartCount(0);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/cart/${userId}`
+      );
+      const data = await res.json();
+      
+
+      const totalQty =
+        data.cart?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+      setCartCount(totalQty);
+    } catch {
+      setCartCount(0);
+    }
+  };
+
+  fetchCartCount();
+
+  // 🔄 Listen when cart updates
+  window.addEventListener("cart-change", fetchCartCount);
+
+  return () => {
+    window.removeEventListener("cart-change", fetchCartCount);
+  };
+}, []);
+
+
 
   // Auto-check token
   useEffect(() => {
@@ -28,14 +62,19 @@ const Header = () => {
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("_id");
+    localStorage.removeItem("email");
+    localStorage.removeItem("name");
     setIsLoggedIn(false);
     toast.success("Logged out successfully");
     navigate("/");
   };
 
   const handleSidebarLinkClick = () => {
-  setSidebarOpen(false);
-};
+    setSidebarOpen(false);
+  };
+
+  
 
   return (
     <>
@@ -90,12 +129,17 @@ const Header = () => {
               />
             )}
 
-            {/* Cart */}
-            <div className="relative h-10 w-10 rounded-full border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
+            <div
+              onClick={() => navigate("/cart")}
+              className="relative h-10 w-10 rounded-full border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-white transition-colors"
+            >
               <span className="text-lg">🛒</span>
-              <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                0
-              </span>
+
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </div>
           </div>
         </nav>
@@ -121,7 +165,7 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-            > 
+            >
               {/* Close */}
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -156,7 +200,7 @@ const Header = () => {
                   Profile
                 </Link>
                 <Link
-                onClick={handleSidebarLinkClick}
+                  onClick={handleSidebarLinkClick}
                   to="/orders"
                   className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
                 >
@@ -164,7 +208,7 @@ const Header = () => {
                   Track Orders
                 </Link>
                 <Link
-                onClick={handleSidebarLinkClick}
+                  onClick={handleSidebarLinkClick}
                   to="/contact"
                   className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
                 >
@@ -172,7 +216,7 @@ const Header = () => {
                   Contact Us
                 </Link>
                 <Link
-                onClick={handleSidebarLinkClick}
+                  onClick={handleSidebarLinkClick}
                   to="/support"
                   className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
                 >
@@ -182,27 +226,51 @@ const Header = () => {
 
                 <hr />
 
-                <Link   onClick={handleSidebarLinkClick} to="/shop" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300 ">
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/shop"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300 "
+                >
                   Shop
                 </Link>
-                <Link   onClick={handleSidebarLinkClick} to="/" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300">
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
+                >
                   Men
                 </Link>
-                <Link  onClick={handleSidebarLinkClick} to="/" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300">
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
+                >
                   Women
                 </Link>
-                <Link  onClick={handleSidebarLinkClick} to="/" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300">
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
+                >
                   Trending
                 </Link>
 
                 <hr />
 
-                <Link  onClick={handleSidebarLinkClick} to="/seasonal" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300">
-              Seasonal
-            </Link>
-            <Link  onClick={handleSidebarLinkClick} to="/" className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300">
-              Accessories
-            </Link>
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/seasonal"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
+                >
+                  Seasonal
+                </Link>
+                <Link
+                  onClick={handleSidebarLinkClick}
+                  to="/"
+                  className="hover:text-black hover:translate-x-2 transition-all ease-in-out duration-300"
+                >
+                  Accessories
+                </Link>
               </ul>
 
               <div className="border-t border-gray-200 my-6"></div>
@@ -210,8 +278,10 @@ const Header = () => {
               {/* Logout */}
               {isLoggedIn && (
                 <button
-                  onClick={() => { handleLogout(); handleSidebarLinkClick(); }}
-                  
+                  onClick={() => {
+                    handleLogout();
+                    handleSidebarLinkClick();
+                  }}
                   className="w-full bg-black text-white py-2 rounded-lg text-xs font-semibold hover:opacity-90 hover:translate-y-1 transition-all  ease-in-out duration-300  cursor-pointer"
                 >
                   Logout

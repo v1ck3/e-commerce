@@ -9,7 +9,7 @@ const Shop = ({ limit = null }) => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get("http://localhost:8520/api/v1/merch");
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/merch`);
         setProducts(response.data);
         setLoading(false);
       } catch (error) {

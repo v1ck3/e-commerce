@@ -8,7 +8,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
   const [mode, setMode] = useState("login"); // login | register
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const apiBase = `${import.meta.env.VITE_API_BASE_URL}`;
+  const apiBase = `${import.meta.env.VITE_API_URL}`;
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.id]: e.target.value });

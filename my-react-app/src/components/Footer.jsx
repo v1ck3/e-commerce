@@ -63,7 +63,7 @@ const Footer = () => {
 
         {/* Large Decorative Text */}
         <div className="overflow-hidden mb-12 select-none pointer-events-none">
-          <h1 className="text-[12vw] max-w-screen font-black leading-none tracking-tighter text-white/[0.06] whitespace-nowrap">
+          <h1 className="text-[12vw] max-w-screen font-black leading-none tracking-tighter text-white/[0.09] whitespace-nowrap">
             VEXUS STUDIO 
           </h1>
         </div>

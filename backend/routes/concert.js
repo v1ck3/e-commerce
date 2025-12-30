@@ -10,6 +10,7 @@ import cartController from "../controllers/cartController.js"
 import auth from "../middlewares/auth.js"
 import handleAddress from "../controllers/handleaddress.js";
 import getOrderDetails from "../controllers/orders.js"
+import { createOrder, verifyPayment } from "../controllers/Razorpay.js"
 
 
 
@@ -31,6 +32,8 @@ router.route("/address").post(handleAddress.handleAddress);
 router.route("/address/:userId").get(handleAddress.handleGetAddress);
 router.route("/address/:userId").put(handleAddress.handleupdate);
 router.route("/getOrderDetails/:userId").get(auth, getOrderDetails);
+router.post("/order/create",auth , createOrder);
+router.post("/order/verify",auth , verifyPayment);
 
 
 

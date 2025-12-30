@@ -12,21 +12,24 @@ import ContactUs from './pages/ContactUs'
 import Support from './pages/Support'
 import Seasonal from './pages/Seasonal'
 import ProductDetails from './components/ProductDetails'
+import ScrollToTop from './components/ScrollToTop'
+import Cart from './components/Cart'
 
 function App() {
-  const [count, setCount] = useState(0)
+  
 
   return (
     <>
        <Toaster position="top-center" />
       <Header />
+      <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/about" element={<h1>About</h1>} />
         <Route path="/concerts" element={<h1>Concerts</h1>} />
-        <Route path="/cart" element={<h1>Cart</h1>} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<TrackOrders />} />
         <Route path="/contact" element={<ContactUs />} />

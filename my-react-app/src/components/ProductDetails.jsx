@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Shop from "./Shop";
 import { FaLongArrowAltLeft } from "react-icons/fa";
-
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -11,11 +11,36 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleAddToCart = async () => {
+    const userId = localStorage.getItem("_id");
+
+    if (!userId) {
+      toast.error("Please login to add items to cart");
+      return;
+    }
+
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/add`, {
+        userId,
+        productId: product._id,
+        quantity: 1,
+      });
+
+      toast.success("Added to cart 🛒");
+
+      // 🔄 update header badge
+      window.dispatchEvent(new Event("cart-change"));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add to cart");
+    }
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8520/api/v1/merch/${id}`
+          `${import.meta.env.VITE_API_URL}/merch/${id}`
         );
         setProduct(res.data);
         setLoading(false);
@@ -23,7 +48,6 @@ const ProductDetails = () => {
         console.error(err);
         setLoading(false);
       }
-      
     };
 
     fetchProduct();
@@ -43,13 +67,12 @@ const ProductDetails = () => {
     <>
       <section className="pt-32 pb-24 px-6 bg-gray-100 min-h-screen">
         <div className="max-w-6xl mx-auto">
-
-          {/* 🔙 Back Button */}
+          {/* 🔙 Back */}
           <button
             onClick={() => navigate(-1)}
             className="mb-10 flex items-center gap-2 text-sm font-bold hover:-translate-x-1 transition"
           >
-            <FaLongArrowAltLeft className="text-sm" /> Back
+            <FaLongArrowAltLeft /> Back
           </button>
 
           <div className="grid md:grid-cols-2 gap-16">
@@ -62,7 +85,7 @@ const ProductDetails = () => {
               />
             </div>
 
-            {/* Details */}
+            {/* Info */}
             <div className="flex flex-col justify-center">
               <span className="text-xs uppercase tracking-widest text-gray-400 mb-3">
                 Limited Edition
@@ -81,7 +104,10 @@ const ProductDetails = () => {
                   "Premium streetwear crafted for modern style."}
               </p>
 
-              <button className="bg-black text-white px-10 py-4 rounded-full font-bold hover:opacity-90 transition">
+              <button
+                onClick={handleAddToCart}
+                className="bg-black text-white px-10 py-4 rounded-full font-bold hover:opacity-90 transition cursor-pointer w-max"
+              >
                 Add to Cart
               </button>
             </div>
@@ -89,7 +115,7 @@ const ProductDetails = () => {
         </div>
       </section>
 
-      {/* Related Products */}
+      {/* Related */}
       <Shop limit={4} />
     </>
   );

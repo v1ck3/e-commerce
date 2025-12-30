@@ -28,7 +28,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchAddress = async () => {
       try {
-        const res = await fetch(`http://localhost:8520/api/v1/address/${userId}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/address/${userId}`);
         const data = await res.json();
 
         if (!data.address) return;
@@ -56,8 +56,8 @@ const Profile = () => {
   const handleSaveAddress = async () => {
   try {
     const url = address
-      ? `http://localhost:8520/api/v1/address/${userId}`
-      : `http://localhost:8520/api/v1/address`;
+      ? `${import.meta.env.VITE_API_URL}/address/${userId}`
+      : `${import.meta.env.VITE_API_URL}/address`;
 
     const res = await fetch(url, {
       method: address ? "PUT" : "POST",
